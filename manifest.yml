@@ -1,0 +1,7 @@
+applications:
+- name: kka-gocf 
+  memory: 256M
+  instances: 1
+  path: ./bin/
+  services:
+      - mysql
