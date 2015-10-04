@@ -1,11 +1,11 @@
-# Go Binary App Template for Cloudfoundry (CF)
+# Go Binary App Template for Cloudfoundry
 
 This is a template for deploying golang binaries apps in CF.
 The template includes:
 
 1. Local docker develpment
 2. Connection tutorial to a mysql database 
-3. Bindata/Gomigrate to bundle DB migration  directly to the binary
+3. Bindata/Gomigrate to bundle DB migrations directly to the binary
 
 ## Prerequisites
 
@@ -21,9 +21,10 @@ you have a properly set-up Go workspace. Working on osx will require crosscompil
 
 Execute
 
-```
-make localpush
-```
+ ```
+ make localpush
+ ```
+
 The `make localpush` simply 
 
 
@@ -37,9 +38,9 @@ The `make localpush` simply
  
 * Starts our app in specific cf container
 
-```
-docker run -v ./gocf/bin:/opt/bin  --env-file ./env.list -p 4000:4000  --link mariadb:mariadb  -it cloudfoundry/cflinuxfs2 /opt/bin/gocf
-``` 
+ ```
+ docker run -v ./gocf/bin:/opt/bin  --env-file ./env.list -p 4000:4000  --link mariadb:mariadb  -it cloudfoundry/cflinuxfs2 /opt/bin/gocf
+ ``` 
 
 Review the logs directly from the container.
 
@@ -85,7 +86,7 @@ cf service-connector 3306 <serviceIP>:3306  &
 mysql -h 127.0.0.1 -u <user> -p  <pass>
 ```
 
-More info at [link](https://docs.developer.swisscom.com/services/services/managing-services.html)
+Documentation how to install the plugin  at [link](https://docs.developer.swisscom.com/services/services/managing-services.html)
 
 
 ## More Infos
