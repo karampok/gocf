@@ -11,7 +11,7 @@ import (
 	"github.com/DavidHuie/gomigrate"
 	cfenv "github.com/cloudfoundry-community/go-cfenv"
 	_ "github.com/go-sql-driver/mysql"
-	mig "gitlab.swisscloud.io/gocf/migrations"
+	mig "github.com/karampok/gocf/migrations"
 )
 
 var (
