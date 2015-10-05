@@ -105,33 +105,39 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func info(w http.ResponseWriter, req *http.Request) {
-	r := "Binary INFO:\n"
-	r += fmt.Sprintf("githash=%s\n", githash)
-	r += fmt.Sprintf("buildstamp=%s\n", buildstamp)
-	r += fmt.Sprintf("\n\nENV Variables\n")
-	for _, e := range os.Environ() {
-		r += fmt.Sprintf("%s\n", e)
-	}
-
-	r += fmt.Sprintf("\n\nCF Variables\n")
 	appEnv, err := cfenv.Current()
 	if err != nil {
 		panic("source the env")
 	}
-	r += fmt.Sprintf("ID:%s\n", appEnv.ID)
-	r += fmt.Sprintf("Index:%s\n", appEnv.Index)
-	r += fmt.Sprintf("Name:%s\n", appEnv.Name)
-	r += fmt.Sprintf("Host:%s\n", appEnv.Host)
-	r += fmt.Sprintf("Port:%s\n", appEnv.Port)
-	r += fmt.Sprintf("Version:%s\n", appEnv.Version)
-	r += fmt.Sprintf("Home:%s\n", appEnv.Home)
-	r += fmt.Sprintf("MemoryLimit:%s\n", appEnv.MemoryLimit)
-	r += fmt.Sprintf("WorkingDir:%s\n", appEnv.WorkingDir)
-	r += fmt.Sprintf("TempDir:%s\n", appEnv.TempDir)
-	r += fmt.Sprintf("User:%s\n", appEnv.User)
-	r += fmt.Sprintf("Services:%s\n", appEnv.Services)
-	r += fmt.Sprintf("\nALL:%v\n", appEnv)
+
+	r := "Binary INFO:\n"
+	r += fmt.Sprintf("githash=%s\n", githash)
+	r += fmt.Sprintf("buildstamp=%s\n", buildstamp)
+	r += fmt.Sprintf("\n\nENV Variables - execute\n")
+	r += fmt.Sprintf("cf logs %s\n", appEnv.Name)
+	r += fmt.Sprintf("cf logs --recent %s\n", appEnv.Name)
 
 	fmt.Fprintln(w, r)
+
+	log.Printf("\n\nENV Variables\n")
+	for _, e := range os.Environ() {
+		log.Printf("%s\n", e)
+	}
+
+	log.Printf("\n\nCF Variables\n")
+	log.Printf("ID:%s\n", appEnv.ID)
+	log.Printf("Index:%s\n", appEnv.Index)
+	log.Printf("Name:%s\n", appEnv.Name)
+	log.Printf("Host:%s\n", appEnv.Host)
+	log.Printf("Port:%s\n", appEnv.Port)
+	log.Printf("Version:%s\n", appEnv.Version)
+	log.Printf("Home:%s\n", appEnv.Home)
+	log.Printf("MemoryLimit:%s\n", appEnv.MemoryLimit)
+	log.Printf("WorkingDir:%s\n", appEnv.WorkingDir)
+	log.Printf("TempDir:%s\n", appEnv.TempDir)
+	log.Printf("User:%s\n", appEnv.User)
+	log.Printf("Services:%s\n", appEnv.Services)
+	log.Printf("\nALL:%v\n", appEnv)
+
 	return
 }
