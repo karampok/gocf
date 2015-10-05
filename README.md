@@ -18,12 +18,14 @@ you have a properly set-up Go workspace. Working on osx will require crosscompil
 
 
 ## Running Locally Using Docker Containers
+To start, given a working GOPATH , execute 
 
-Execute
-
- ```
- make localpush
- ```
+```
+go get github.com/karampok/gocf
+go get -u github.com/jteeuwen/go-bindata/...
+go get github.com/tools/godep
+make localpush
+```
 
 The `make localpush` simply 
 

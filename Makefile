@@ -1,4 +1,3 @@
-ttime=/usr/bin/time 
 all: binary
 
 binary: bindata
@@ -12,15 +11,15 @@ test:
 	GOARCH=amd64 GOOS=linux godep go test -v ./...
 
 push: binary
-	$(ttime)  cf push  -c './gocf'   -b https://github.com/cloudfoundry/binary-buildpack.git
+	cf push  -c './gocf'   -b https://github.com/cloudfoundry/binary-buildpack.git
 
 
-localpush: binary  db-start
-	docker run -v ${PWD}/bin:/opt/bin  --env-file ./env.list -p 4000:4000  --link mariadb:mariadb  -it cloudfoundry/cflinuxfs2 /opt/bin/gocf
+localpush: binary db-start
+	docker run -v ${PWD}/bin:/opt/bin  --env-file ./cf.env -p 4000:4000  --link mariadb:mariadb  -it cloudfoundry/cflinuxfs2 /opt/bin/gocf
 
-db-start: db-stop
+db-start: 
 	@echo  "$(OK_COLOR)==> Starting the mariadb $(NO_COLOR)"
-	docker run -d --name mariadb --env-file ./mariadb.env  -p 3306:3306/tcp mariadb 
+	docker run -d --name mariadb --env-file ./mariadb.env  -p 3306:3306/tcp mariadb  2>/dev/null || echo "MariaDB is already running (make db-stop to start from scratch)"
 	sleep 10
 
 db-stop: 

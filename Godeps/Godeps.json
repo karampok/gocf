@@ -1,5 +1,5 @@
 {
-	"ImportPath": "gitlab.swisscloud.io/gocf",
+	"ImportPath": "github.com/karampok/gocf",
 	"GoVersion": "go1.4.2",
 	"Deps": [
 		{

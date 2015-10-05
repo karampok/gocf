@@ -84,7 +84,7 @@ func migrations_data2_create_available_port_ranges_downSql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "migrations_data/2_create_available_port_ranges_down.sql", size: 45, mode: os.FileMode(420), modTime: time.Unix(1443951260, 0)}
+	info := bindataFileInfo{name: "migrations_data/2_create_available_port_ranges_down.sql", size: 45, mode: os.FileMode(420), modTime: time.Unix(1444037756, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
@@ -104,7 +104,7 @@ func migrations_data2_create_available_port_ranges_upSql() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "migrations_data/2_create_available_port_ranges_up.sql", size: 213, mode: os.FileMode(420), modTime: time.Unix(1443951260, 0)}
+	info := bindataFileInfo{name: "migrations_data/2_create_available_port_ranges_up.sql", size: 213, mode: os.FileMode(420), modTime: time.Unix(1444037756, 0)}
 	a := &asset{bytes: bytes, info:  info}
 	return a, nil
 }
