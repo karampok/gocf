@@ -30,3 +30,6 @@ db-client:
 	@echo  "$(OK_COLOR)==> Start a client $(NO_COLOR)"
 	docker run -it --env-file ./mariadb.env  --link mariadb:mysql --rm mariadb sh -c 'exec mysql -h"$$MYSQL_PORT_3306_TCP_ADDR" -P"$$MYSQL_PORT_3306_TCP_PORT" -u"$$MYSQL_USER" -p"$$MYSQL_PASSWORD"'
 
+db-client-root:
+	@echo  "$(OK_COLOR)==> Start a client $(NO_COLOR)"
+	docker run -it --env-file ./mariadb.env  --link mariadb:mysql --rm mariadb sh -c 'exec mysql -h"$$MYSQL_PORT_3306_TCP_ADDR" -P"$$MYSQL_PORT_3306_TCP_PORT" -uroot -p"$$MYSQL_ROOT_PASSWORD"'

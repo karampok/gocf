@@ -53,10 +53,10 @@ func init() {
 
 	var version string
 	db.QueryRow("SELECT VERSION()").Scan(&version)
-	log.Printf("Connected to:%s\n", version)
+	log.Printf("Connected to :%s\n", version)
 
 	if err := db.Ping(); err != nil {
-		log.Fatal("Error2", err.Error())
+		log.Fatal("DB Error Ping", err.Error())
 	}
 
 	if _, err := os.Stat(migPath); os.IsNotExist(err) {
@@ -67,6 +67,14 @@ func init() {
 	if err := migrator.Migrate(); err != nil {
 		log.Fatal("Can not execute migrations:", err)
 	}
+	dbstuff(db)
+}
+
+func dbstuff(db *sql.DB) {
+	if _, err := db.Exec("INSERT INTO port_ranges(port_from,port_to) VALUES(45,55)"); err != nil {
+		log.Printf("Can not insert data:%s", err)
+	}
+
 }
 
 func getConnectionStr() string {
@@ -100,8 +108,9 @@ func getMariaService() string {
 		s.Credentials["host"], s.Credentials["port"],
 		s.Credentials["database"])
 }
+
 func defaultHandler(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintln(w, "hello, world!")
+	fmt.Fprintln(w, "hello swisscom cloud!")
 }
 
 func info(w http.ResponseWriter, req *http.Request) {
