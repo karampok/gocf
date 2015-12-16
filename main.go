@@ -1,81 +1,111 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"log/syslog"
 	"net/http"
-	"net/url"
 	"os"
+	"time"
 
-	"github.com/cloudfoundry-community/go-cfenv"
+	"github.com/Pallinder/go-randomdata"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/karampok/gocf/util"
 )
 
+type appconfig struct {
+	elastic, logstash, kibana string
+}
+
+func (a appconfig) String() (r string) {
+	r += fmt.Sprintf("Elasticsearch URL [%s]\n", a.elastic)
+	r += fmt.Sprintf("Logstash URL [%s]\n", a.logstash)
+	r += fmt.Sprintf("Kibana URL [%s]\n", a.kibana)
+	return
+}
+
 var (
 	buildstamp string
 	githash    string
+	app        appconfig
+	rlog       *syslog.Writer
 )
 
+func init() {
+	log.SetOutput(os.Stdout)
+	e, l, k := util.SetELK("myelk")
+	app = appconfig{e, l, k}
+	fmt.Println(app)
+	//util.RestoreData()
+}
+
 func main() {
+	//need a timeout
+	rlog, err := syslog.Dial("tcp", app.logstash, syslog.LOG_INFO, "FromGO")
+	defer rlog.Close()
+	if err != nil {
+		log.Fatalf("Cannot connect to remote syslog server,  %s", err)
+	}
+
 	var port string
 	if port = os.Getenv("PORT"); len(port) == 0 {
 		port = "4000"
 	}
 
+	go longJob()
+	go longJob()
+	go longJob()
+	go longJob()
+
 	http.HandleFunc("/", defaultHandler)
-	http.HandleFunc("/cfinfo", util.CfInfo)
 	http.HandleFunc("/elk", playelk)
-	http.HandleFunc("/info", info)
+	http.HandleFunc("/kibana", playkibana)
+	//http.HandleFunc("/info", info)
+	//http.HandleFunc("/cfinfo", util.CfInfo)
 	log.Printf("Listening at %s", port)
+	rlog.Info(fmt.Sprintf("Listening at %s", port))
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal("ListenAndServe:", err)
 	}
 
 }
 
-func init() {
-	log.SetOutput(os.Stdout)
-	util.RestoreData()
+type Tweet struct {
+	User     string `json:"user"`
+	Message  string `json:"message"`
+	Location string `json:"location"`
+	IP       string `json:"ip"`
+}
+
+func feederRandomJson() {
+	t := Tweet{
+		User:     randomdata.SillyName(),
+		Message:  randomdata.Paragraph(),
+		Location: randomdata.Country(randomdata.FullCountry),
+		IP:       randomdata.IpV4Address(),
+	}
+	j, _ := json.Marshal(t)
+	fmt.Println(string(j))
+}
+
+func longJob() {
+	for {
+		time.Sleep(1000 * time.Millisecond)
+		feederRandomJson()
+	}
 }
 
 func playelk(w http.ResponseWriter, req *http.Request) {
-	var eUrl, kUrl, lUrl string
-	appEnv, enverr := cfenv.Current()
-	if enverr != nil {
-		eUrl = "http://localhost:9200"
-		kUrl = "http://localhost:5601"
-		lUrl = "http://localhost:5000"
-	} else {
-		elk, err := appEnv.Services.WithTag("myelk")
-		fmt.Println(appEnv)
-		if err == nil {
-			{ //BORING very specific
-				user, _ := elk[0].Credentials["elasticSearchUsername"]
-				pass, _ := elk[0].Credentials["elasticSearchPassword"]
-				host, _ := elk[0].Credentials["elasticSearchHost"]
-				port, _ := elk[0].Credentials["elasticSearchPort"]
-				eUrl = fmt.Sprintf("http://%s:%s@%s:%f", user, pass, host, port)
-			}
-			{ //VERY BAD because we cannot insert easy the user/pass in url
-				user, _ := url.Parse(elk[0].Credentials["kibanaUsername"].(string))
-				pass, _ := url.Parse(elk[0].Credentials["kibanaPassword"].(string))
-				url, _ := url.Parse(elk[0].Credentials["kibanaUrl"].(string))
-				kUrl = fmt.Sprintf("%s  -u %s -p %s", url, user, pass)
-			}
-			{ //GOOD because I could use standard parsing libray (
-				u, _ := url.Parse(elk[0].Credentials["APROPERLOGSTASHURL"].(string))
-				lUrl = fmt.Sprintf("http://%s:%s@%s", u.User, u.Pass, u.Host)
-			}
-		} else {
-			log.Fatal("Unable to find elastic search service")
-		}
-	}
-	log.Printf("Elasticsearch url [%s]", eUrl)
-	log.Printf("Kibana url [%s]", kUrl)
-	log.Printf("Logstash url [%s]", lUrl)
-
+	log.Printf("play elk, play")
+	//curl http://GJPKtkcJ89KOQD22:dGaMfx95tP8kIMgv@localhost:9090/_cat/indices?v
 	fmt.Fprintf(w, "hello at swisscom elk")
+}
+
+func playkibana(w http.ResponseWriter, req *http.Request) {
+	log.Printf("play kibana, play")
+	log.Printf("cf service-connector --skip-ssl-validation   8090 %s", app.kibana)
+	fmt.Fprintln(w, "hello swisscom kibana!")
 }
 
 func defaultHandler(w http.ResponseWriter, req *http.Request) {
@@ -91,6 +121,8 @@ func info(w http.ResponseWriter, req *http.Request) {
 	for _, e := range os.Environ() {
 		r += fmt.Sprintf("%s\n", e)
 	}
+
+	r += app.String()
 	fmt.Fprintln(w, r)
 
 	return

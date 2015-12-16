@@ -4,10 +4,48 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 
 	cfenv "github.com/cloudfoundry-community/go-cfenv"
 )
+
+func SetELK(tag string) (eUrl, lUrl, kUrl string) {
+	appEnv, enverr := cfenv.Current()
+	if enverr != nil {
+		eUrl = "http://localhost:9200"
+		kUrl = "http://localhost:5601"
+		lUrl = "http://localhost:5000"
+	} else {
+		elk, err := appEnv.Services.WithTag(tag)
+		if err == nil {
+			{
+				user, _ := elk[0].Credentials["elasticSearchUsername"]
+				pass, _ := elk[0].Credentials["elasticSearchPassword"]
+				host, _ := elk[0].Credentials["elasticSearchHost"]
+				port, _ := elk[0].Credentials["elasticSearchPort"]
+				eUrl = fmt.Sprintf("http://%s:%s@%s:%0.0f", user, pass, host, port)
+			}
+			{
+				user, _ := elk[0].Credentials["kibanaUsername"]
+				pass, _ := elk[0].Credentials["kibanaPassword"]
+				url, _ := elk[0].Credentials["kibanaUrl"]
+				kUrl = fmt.Sprintf("%s  -u %s -p %s", url, user, pass)
+			}
+			{
+				u, _ := url.Parse(elk[0].Credentials["syslog"].(string))
+				lUrl = fmt.Sprintf("%s", u.Host)
+			}
+		} else {
+			log.Fatal("Unable to find elastic search service")
+		}
+	}
+	//log.Printf("Elasticsearch url [%s]", eUrl)
+	//log.Printf("Logstash url [%s]", lUrl)
+	//log.Printf("Kibana url [%s]", kUrl)
+
+	return
+}
 
 func CfInfo(w http.ResponseWriter, req *http.Request) {
 	appEnv, err := cfenv.Current()
