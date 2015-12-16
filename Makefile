@@ -20,7 +20,6 @@ localpush: binary db-start
 db-start: 
 	@echo  "$(OK_COLOR)==> Starting the mariadb $(NO_COLOR)"
 	docker run -d --name mariadb --env-file ./mariadb.env  -p 3306:3306/tcp mariadb  2>/dev/null || echo "MariaDB is already running (make db-stop to start from scratch)"
-	sleep 10
 
 db-stop: 
 	@echo  "$(OK_COLOR)==> Stoping the mariadb  $(NO_COLOR)"

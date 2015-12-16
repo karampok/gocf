@@ -1,5 +1,5 @@
 applications:
-- name: kka-gocf 
+- name: kka-gocf1 
   memory: 256M
   instances: 1
   path: ./bin/

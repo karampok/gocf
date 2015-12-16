@@ -12,7 +12,7 @@ The template includes:
 The following assumes you have a working, recent version of Go installed, and
 you have a properly set-up Go workspace. Working on osx will require crosscompile. In a nutshell:
 
- * Install go (tested with 1.4.2)
+ * Install go (tested with 1.5.x)
  * Install docker for local development system
  * Registered to public or selfhosted CF service
 
