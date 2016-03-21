@@ -23,7 +23,6 @@ test:
 cfpush: build
 	cf push  -c './gocf'   -b https://github.com/cloudfoundry/binary-buildpack.git
 
-
 localpush: build db-start
 	docker run -v ${PWD}/bin:/opt/bin  --env-file ./cf.env -p 4000:4000  --link mariadb:mariadb  -it cloudfoundry/cflinuxfs2 /opt/bin/gocf
 
