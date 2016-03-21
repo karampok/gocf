@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"log/syslog"
 	"net/http"
@@ -34,7 +35,7 @@ var (
 
 func init() {
 	log.SetOutput(os.Stdout)
-	e, l, k := util.SetELK("myelk")
+	e, l, k := util.SetELK("loadtest")
 	app = appconfig{e, l, k}
 	fmt.Println(app)
 	//util.RestoreData()
@@ -53,14 +54,14 @@ func main() {
 		port = "4000"
 	}
 
-	go longJob()
-	go longJob()
-	go longJob()
-	go longJob()
+	for i := 0; i < 1; i++ {
+		go longJob()
+	}
 
 	http.HandleFunc("/", defaultHandler)
 	http.HandleFunc("/elk", playelk)
 	http.HandleFunc("/kibana", playkibana)
+	http.HandleFunc("/elastic", playelastic)
 	//http.HandleFunc("/info", info)
 	//http.HandleFunc("/cfinfo", util.CfInfo)
 	log.Printf("Listening at %s", port)
@@ -91,21 +92,45 @@ func feederRandomJson() {
 
 func longJob() {
 	for {
-		time.Sleep(1000 * time.Millisecond)
+		time.Sleep(100 * time.Millisecond)
 		feederRandomJson()
 	}
 }
 
 func playelk(w http.ResponseWriter, req *http.Request) {
-	log.Printf("play elk, play")
-	//curl http://GJPKtkcJ89KOQD22:dGaMfx95tP8kIMgv@localhost:9090/_cat/indices?v
 	fmt.Fprintf(w, "hello at swisscom elk")
+}
+
+func getHttp(url string) (int, []byte, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return 0, []byte{}, err
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return 0, []byte{}, err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return 0, []byte{}, err
+	}
+	return resp.StatusCode, body, nil
+}
+
+func playelastic(w http.ResponseWriter, req *http.Request) {
+	path := req.URL.Path
+	fmt.Fprintln(w, string(path))
+	_, b, _ := getHttp(fmt.Sprintf("%s/%s", app.elastic, "_cat/indices?v"))
+	//fmt.Fprintln(w, "cf service-connector --skip-ssl-validation   9090 %s", app.elastic)
+	fmt.Fprintln(w, string(b))
 }
 
 func playkibana(w http.ResponseWriter, req *http.Request) {
 	log.Printf("play kibana, play")
-	log.Printf("cf service-connector --skip-ssl-validation   8090 %s", app.kibana)
 	fmt.Fprintln(w, "hello swisscom kibana!")
+	fmt.Fprintln(w, "cf service-connector --skip-ssl-validation   8090 %s", app.kibana)
 }
 
 func defaultHandler(w http.ResponseWriter, req *http.Request) {

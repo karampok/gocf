@@ -1,7 +1,7 @@
 applications:
-- name: kka-gocf1 
+- name: kka-testelk 
   memory: 256M
   instances: 1
   path: ./bin/
   services:
-      - mysql
+      - testelk1
