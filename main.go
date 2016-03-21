@@ -65,7 +65,7 @@ func playelk(w http.ResponseWriter, req *http.Request) {
 			}
 			{ //GOOD because I could use standard parsing libray (
 				u, _ := url.Parse(elk[0].Credentials["APROPERLOGSTASHURL"].(string))
-				lUrl = fmt.Sprintf("http://%s:%s@%s", u.User, u.Pass, u.Host)
+				lUrl = fmt.Sprintf("http://%s@%s", u.User.String(), u.Host)
 			}
 		} else {
 			log.Fatal("Unable to find elastic search service")

@@ -1,0 +1,12 @@
+---
+platform: linux
+image: docker:///golang#1.5.3
+inputs:
+  - name: gocf-src-repo 
+    path: go/src/github.com/karampok/gocf
+  - name: version
+outputs:
+ - name: build-artifact
+run:
+  path: go/src/github.com/karampok/gocf/ci/build-artifact.sh
+  args: []       
