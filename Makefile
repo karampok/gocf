@@ -3,7 +3,8 @@ all: build
 GIT_COMMIT = $(shell git describe --always --dirty)
 BUILD_TIME = $(shell date -u +"%Y-%m-%dT%H:%M:%SZ" | tr -d '\n')
 GGOPATH = $(shell pwd)/Godeps/_workspace:$(GOPATH)
-OUTPUTDIR ?= .
+OUTPUTDIR ?= ./bin
+VERSION   ?= "0.0.0-dev" 
 
 setup:
 	go get -u golang.org/x/tools/cmd/cover
@@ -12,7 +13,7 @@ setup:
 	go get -u github.com/AlekSi/gocov-xml
 
 build: bindata
-	GOPATH=$(GGOPATH) GOARCH=amd64 GOOS=linux go build -ldflags "-X main.buildstamp=$(BUILD_TIME) -X main.githash=$(GIT_COMMIT)" -o $(OUTPUTDIR)/gocf-5
+	GOPATH=$(GGOPATH) GOARCH=amd64 GOOS=linux go build -ldflags "-X main.buildstamp=$(BUILD_TIME) -X main.githash=$(GIT_COMMIT)" -o $(OUTPUTDIR)/gocf-$(VERSION)
 
 bindata:
 	go-bindata -o  migrations/bindata.go -pkg migration migrations_data/
